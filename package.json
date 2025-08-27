@@ -153,5 +153,8 @@
       "packages/"
     ]
   },
-  "packageManager": "yarn@4.9.4"
+  "packageManager": "yarn@4.9.4",
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.12"
+  }
 }
