@@ -205,7 +205,7 @@ export function addConversationToAllConversationsQueries(
   // Find all keys that start with QueryKeys.allConversations
   const queries = queryClient
     .getQueryCache()
-    .findAll([QueryKeys.allConversations], { exact: false });
+    .findAll({ queryKey: [QueryKeys.allConversations], exact: false });
 
   for (const query of queries) {
     queryClient.setQueryData<InfiniteData<ConversationCursorData>>(query.queryKey, (old) => {
@@ -322,7 +322,7 @@ export function storeEndpointSettings(conversation: TConversation | null) {
 export function addConvoToAllQueries(queryClient: QueryClient, newConvo: TConversation) {
   const queries = queryClient
     .getQueryCache()
-    .findAll([QueryKeys.allConversations], { exact: false });
+    .findAll({ queryKey: [QueryKeys.allConversations], exact: false });
 
   for (const query of queries) {
     queryClient.setQueryData<InfiniteData<ConversationCursorData>>(query.queryKey, (oldData) => {
@@ -358,7 +358,7 @@ export function updateConvoInAllQueries(
 ) {
   const queries = queryClient
     .getQueryCache()
-    .findAll([QueryKeys.allConversations], { exact: false });
+    .findAll({ queryKey: [QueryKeys.allConversations], exact: false });
 
   for (const query of queries) {
     queryClient.setQueryData<InfiniteData<ConversationCursorData>>(query.queryKey, (oldData) => {
@@ -382,7 +382,7 @@ export function updateConvoInAllQueries(
 export function removeConvoFromAllQueries(queryClient: QueryClient, conversationId: string) {
   const queries = queryClient
     .getQueryCache()
-    .findAll([QueryKeys.allConversations], { exact: false });
+    .findAll({ queryKey: [QueryKeys.allConversations], exact: false });
 
   for (const query of queries) {
     queryClient.setQueryData<InfiniteData<ConversationCursorData>>(query.queryKey, (oldData) => {

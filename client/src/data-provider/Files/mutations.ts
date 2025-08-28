@@ -23,7 +23,8 @@ export const useUploadFileMutation = (
 > => {
   const queryClient = useQueryClient();
   const { onSuccess, ...options } = _options || {};
-  return useMutation([MutationKeys.fileUpload], {
+  return useMutation({
+    mutationKey: [MutationKeys.fileUpload],
     mutationFn: (body: FormData) => {
       const width = body.get('width') ?? '';
       const height = body.get('height') ?? '';
@@ -150,7 +151,8 @@ export const useDeleteFilesMutation = (
   const { showToast } = useToastContext();
   const localize = useLocalize();
   const { onSuccess, onError, ...options } = _options || {};
-  return useMutation([MutationKeys.fileDelete], {
+  return useMutation({
+    mutationKey: [MutationKeys.fileDelete],
     mutationFn: (body: t.DeleteFilesBody) => dataService.deleteFiles(body),
     ...options,
     onError: (error, vars, context) => {

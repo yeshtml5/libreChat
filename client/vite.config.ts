@@ -8,6 +8,10 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => ({
+  define: {
+    global: 'globalThis',
+    'process.env': {},
+  },
   server: {
     host: 'localhost',
     port: 3090,
@@ -28,27 +32,42 @@ export default defineConfig(({ command }) => ({
   envPrefix: ['VITE_', 'SCRIPT_', 'DOMAIN_', 'ALLOW_'],
   plugins: [
     react(),
-    nodePolyfills(),
     VitePWA({
       injectRegister: 'auto', // 'auto' | 'manual' | 'disabled'
       registerType: 'autoUpdate', // 'prompt' | 'autoUpdate'
       devOptions: {
-        enabled: false, // disable service worker registration in development mode
+        enabled: true, // enable service worker in development for testing
       },
       useCredentials: true,
       includeManifestIcons: false,
       workbox: {
         globPatterns: [
           '**/*.{js,css,html}',
-          'assets/favicon*.png',
-          'assets/icon-*.png',
-          'assets/apple-touch-icon*.png',
-          'assets/maskable-icon.png',
           'manifest.webmanifest',
         ],
-        globIgnores: ['images/**/*', '**/*.map', 'index.html'],
+        globIgnores: ['images/**/*', '**/*.map'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+        navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/oauth/, /^\/api/],
+        skipWaiting: true,
+        clientsClaim: true,
+        runtimeCaching: [
+          {
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pages',
+              networkTimeoutSeconds: 3,
+            },
+          },
+          {
+            urlPattern: /\.(?:js|css)$/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'static-resources',
+            },
+          },
+        ],
       },
       includeAssets: [],
       manifest: {
@@ -91,6 +110,7 @@ export default defineConfig(({ command }) => ({
     sourcemapExclude({ excludeNodeModules: true }),
     compression({
       threshold: 10240,
+      algorithm: 'gzip',
     }),
   ],
   publicDir: command === 'serve' ? './public' : false,

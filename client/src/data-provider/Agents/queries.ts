@@ -22,7 +22,9 @@ export const useAvailableAgentToolsQuery = (): QueryObserverResult<t.TPlugin[]> 
   const endpointsConfig = queryClient.getQueryData<t.TEndpointsConfig>([QueryKeys.endpoints]);
 
   const enabled = !!endpointsConfig?.[EModelEndpoint.agents];
-  return useQuery<t.TPlugin[]>([QueryKeys.tools], () => dataService.getAvailableAgentTools(), {
+  return useQuery<t.TPlugin[]>({
+    queryKey: [QueryKeys.tools],
+    queryFn: () => dataService.getAvailableAgentTools(),
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     refetchOnMount: false,
@@ -41,23 +43,21 @@ export const useListAgentsQuery = <TData = t.AgentListResponse>(
   const endpointsConfig = queryClient.getQueryData<t.TEndpointsConfig>([QueryKeys.endpoints]);
 
   const enabled = !!endpointsConfig?.[EModelEndpoint.agents];
-  return useQuery<t.AgentListResponse, unknown, TData>(
-    [QueryKeys.agents, params],
-    () => dataService.listAgents(params),
-    {
-      // Example selector to sort them by created_at
-      // select: (res) => {
-      //   return res.data.sort((a, b) => a.created_at - b.created_at);
-      // },
-      staleTime: 1000 * 5,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      refetchOnMount: false,
-      retry: false,
-      ...config,
-      enabled: config?.enabled !== undefined ? config.enabled && enabled : enabled,
-    },
-  );
+  return useQuery<t.AgentListResponse, unknown, TData>({
+    queryKey: [QueryKeys.agents, params],
+    queryFn: () => dataService.listAgents(params),
+    // Example selector to sort them by created_at
+    // select: (res) => {
+    //   return res.data.sort((a, b) => a.created_at - b.created_at);
+    // },
+    staleTime: 1000 * 5,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
+    retry: false,
+    ...config,
+    enabled: config?.enabled !== undefined ? config.enabled && enabled : enabled,
+  });
 };
 
 /**
@@ -67,20 +67,18 @@ export const useGetAgentByIdQuery = (
   agent_id: string,
   config?: UseQueryOptions<t.Agent>,
 ): QueryObserverResult<t.Agent> => {
-  return useQuery<t.Agent>(
-    [QueryKeys.agent, agent_id],
-    () =>
+  return useQuery<t.Agent>({
+    queryKey: [QueryKeys.agent, agent_id],
+    queryFn: () =>
       dataService.getAgentById({
         agent_id,
       }),
-    {
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      refetchOnMount: false,
-      retry: false,
-      ...config,
-    },
-  );
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
+    retry: false,
+    ...config,
+  });
 };
 
 /**
@@ -90,20 +88,18 @@ export const useGetExpandedAgentByIdQuery = (
   agent_id: string,
   config?: UseQueryOptions<t.Agent>,
 ): QueryObserverResult<t.Agent> => {
-  return useQuery<t.Agent>(
-    [QueryKeys.agent, agent_id, 'expanded'],
-    () =>
+  return useQuery<t.Agent>({
+    queryKey: [QueryKeys.agent, agent_id, 'expanded'],
+    queryFn: () =>
       dataService.getExpandedAgentById({
         agent_id,
       }),
-    {
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      refetchOnMount: false,
-      retry: false,
-      ...config,
-    },
-  );
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
+    retry: false,
+    ...config,
+  });
 };
 
 /**
@@ -115,17 +111,15 @@ export const useGetExpandedAgentByIdQuery = (
 export const useGetAgentCategoriesQuery = (
   config?: UseQueryOptions<t.TMarketplaceCategory[]>,
 ): QueryObserverResult<t.TMarketplaceCategory[]> => {
-  return useQuery<t.TMarketplaceCategory[]>(
-    [QueryKeys.agentCategories],
-    () => dataService.getAgentCategories(),
-    {
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      refetchOnMount: false,
-      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-      ...config,
-    },
-  );
+  return useQuery<t.TMarketplaceCategory[]>({
+    queryKey: [QueryKeys.agentCategories],
+    queryFn: () => dataService.getAgentCategories(),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    ...config,
+  });
 };
 
 /**
@@ -147,15 +141,15 @@ export const useMarketplaceAgentsInfiniteQuery = (
     queryFn: ({ pageParam }) => {
       const queryParams = { ...params };
       if (pageParam) {
-        queryParams.cursor = pageParam.toString();
+        queryParams.cursor = pageParam;
       }
       return dataService.getMarketplaceAgents(queryParams);
     },
+    initialPageParam: undefined,
     getNextPageParam: (lastPage) => lastPage?.after ?? undefined,
     enabled: !!params.requiredPermission,
-    keepPreviousData: true,
     staleTime: 2 * 60 * 1000, // 2 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     refetchOnMount: false,

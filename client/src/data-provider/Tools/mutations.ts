@@ -8,14 +8,13 @@ export const useToolCallMutation = <T extends t.ToolId>(
   options?: t.ToolCallMutationOptions<T>,
 ): UseMutationResult<t.ToolCallResponse, Error, t.ToolParams<T>> => {
   const queryClient = useQueryClient();
-  return useMutation(
-    (toolParams: t.ToolParams<T>) => {
+  return useMutation({
+    mutationFn: (toolParams: t.ToolParams<T>) => {
       return dataService.callTool({
         toolId,
         toolParams,
       });
     },
-    {
       onMutate: (variables) => options?.onMutate?.(variables),
       onError: (error, variables, context) => options?.onError?.(error, variables, context),
       onSuccess: (response, variables, context) => {
